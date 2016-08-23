@@ -5,7 +5,8 @@ Shortly.Router = Backbone.Router.extend({
 
   routes: {
     '': 'index',
-    'create': 'create'
+    'create': 'create',
+    'login': 'login'
   },
 
   swapView: function(view) {
@@ -13,12 +14,16 @@ Shortly.Router = Backbone.Router.extend({
   },
 
   index: function() {
+    //create new collection of links
     var links = new Shortly.Links();
+    //make page for all the links in collection
     var linksView = new Shortly.LinksView({ collection: links });
+    //show new page
     this.swapView(linksView);
   },
 
   create: function() {
+    //upon submit new link, show new link.
     this.swapView(new Shortly.createLinkView());
   }
 });

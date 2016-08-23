@@ -22,15 +22,32 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
-
+//goes to main page w/o login
 app.get('/', 
 function(req, res) {
-  res.render('index');
+  //user is not signed in
+  if (true) {
+    //redirect to /login
+    res.redirect('/login');
+  } else {
+    res.render('index');  
+  }
 });
 
+//creates new link on main page
 app.get('/create', 
 function(req, res) {
-  res.render('index');
+  if (true) {
+    res.redirect('/login');
+  } else {
+    res.render('index');  
+  }
+});
+
+//if user is not signed in, redirect to login page
+app.get('/login', 
+function(req, res) {
+  res.render('login');
 });
 
 app.get('/links', 
