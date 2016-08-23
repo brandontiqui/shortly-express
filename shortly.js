@@ -22,6 +22,51 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
+
+app.get('/signup', 
+function(req, res) {
+  if (true) {
+    res.render('signup');
+  } else {
+    res.render('index');  
+  }
+});
+
+app.post('/signup', function(req, res) {
+  console.log(req.body, 'here os BODY!!!!!!!!!!!!!!!');
+  //check valid inputs for un and pw
+  var un = req.body.username;
+  var pw = req.body.password;
+  if (util.isValidSignUp(un, pw)) {
+    //post to db
+    new User({ username: un, password: pw }).fetch().then(function(found) {
+      if (found) {
+        //user exists in db, so send to homepage
+        res.redirect('/');
+        res.render('index');
+        //start session
+      } else { //else not found, 
+        //create new user
+        User.create({
+          username: un,
+          password: pw
+        })
+        .then(function(newUser) {
+          //res.status(200).send(newUser);
+          //redirect to home page
+          res.redirect('/'); res.render('index');
+          //start session
+          console.log('new user added to the system');
+        });
+      }
+    });
+  } else {
+      //stay on page
+    console.log('either password or username are not valid. Change them/it.');
+  }
+   
+});
+
 //goes to main page w/o login
 app.get('/', 
 function(req, res) {
@@ -88,6 +133,8 @@ function(req, res) {
     }
   });
 });
+
+
 
 /************************************************************/
 // Write your authentication routes here
