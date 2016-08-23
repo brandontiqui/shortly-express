@@ -2,15 +2,16 @@ var db = require('../config');
 var bcrypt = require('bcrypt-nodejs');
 var Promise = require('bluebird');
 var Link = require('./link');
+var crypto = require('crypto');
 
 
 var User = db.Model.extend({
 
   tableName: 'users',
   //TODO:
-  defaults: {
-    isLoggedIn: false,
-  },
+  // defaults: {
+  //   isLoggedIn: false,
+  // },
 
   links: function() {
     return this.hasMany(Links);
@@ -22,9 +23,14 @@ var User = db.Model.extend({
       //create hash code
       var shasum = crypto.createHash('sha1');
       //hash code assigned to url
-      shasum.update(model.get('url'));
+      shasum.update(model.get('password'));
       //url model's code view is set to shortened address
-      model.set('code', shasum.digest('hex').slice(0, 5));
+      // console.log('model');
+      // console.log(model);
+      // console.log('attributes');
+      // console.log(attrs.username);
+      // model.set('password', attrs.password);
+      // model.set('username', attrs.username);
     });
   }
 });

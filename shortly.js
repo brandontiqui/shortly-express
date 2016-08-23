@@ -44,10 +44,11 @@ app.post('/signup', function(req, res) {
         //user exists in db, so send to homepage
         res.redirect('/');
         res.render('index');
+        //res.end();
         //start session
       } else { //else not found, 
         //create new user
-        User.create({
+        Users.create({
           username: un,
           password: pw
         })
@@ -57,6 +58,10 @@ app.post('/signup', function(req, res) {
           res.redirect('/'); res.render('index');
           //start session
           console.log('new user added to the system');
+          //res.end();
+        })
+        .catch(function(error) {
+          console.log('error adding user: ' + error);
         });
       }
     });
