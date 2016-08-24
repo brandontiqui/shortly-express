@@ -63,7 +63,7 @@ describe('', function() {
 
     var requestWithSession = request.defaults({jar: true});
 
-    xbeforeEach(function(done) {
+    beforeEach(function(done) {
       // create a user that we can then log-in with
       new User({
         'username': 'Phillip',
@@ -254,9 +254,6 @@ describe('', function() {
         db.knex('users')
           .where('username', '=', 'Svnh')
           .then(function(res) {
-            console.log('checking databse spec');
-            console.log(res);
-            console.log(body, 'body');
             if (res[0] && res[0]['username']) {
               var user = res[0]['username'];
             }
@@ -289,7 +286,7 @@ describe('', function() {
 
   }); // 'Account Creation'
 
-  xdescribe('Account Login:', function() {
+  describe('Account Login:', function() {
 
     var requestWithSession = request.defaults({jar: true});
 

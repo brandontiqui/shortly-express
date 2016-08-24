@@ -2,7 +2,7 @@ var express = require('express');
 var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
-
+var session = require('express-session');
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -13,6 +13,10 @@ var Click = require('./app/models/click');
 
 var app = express();
 
+app.use(session({
+  secret: 'keyboard cat',
+}));
+
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(partials());
@@ -22,18 +26,19 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
+//var sess;
 
 app.get('/signup', 
 function(req, res) {
   if (true) {
     res.render('signup');
   } else {
-    res.render('index');  
+    res.render('index');
   }
 });
 
+//submit sends a post request
 app.post('/signup', function(req, res) {
-  console.log(req.body, 'here os BODY!!!!!!!!!!!!!!!');
   //check valid inputs for un and pw
   var un = req.body.username;
   var pw = req.body.password;
@@ -43,9 +48,6 @@ app.post('/signup', function(req, res) {
       if (found) {
         //user exists in db, so send to homepage
         res.redirect('/');
-        res.render('index');
-        //res.end();
-        //start session
       } else { //else not found, 
         //create new user
         Users.create({
@@ -53,12 +55,15 @@ app.post('/signup', function(req, res) {
           password: pw
         })
         .then(function(newUser) {
-          //res.status(200).send(newUser);
-          //redirect to home page
-          res.redirect('/'); res.render('index');
-          //start session
           console.log('new user added to the system');
-          //res.end();
+          //res.status(200).send(newUser);
+          //start session
+          req.session.regenerate(function() {
+            req.session.user = un;  
+            //redirect to home page
+            res.redirect('/');          
+          });
+          
         })
         .catch(function(error) {
           console.log('error adding user: ' + error);
@@ -72,11 +77,17 @@ app.post('/signup', function(req, res) {
    
 });
 
+app.get('/logout', function(req, res) {
+  req.session.destroy(function() {
+    res.redirect('/login');
+  });
+});
+
 //goes to main page w/o login
 app.get('/', 
 function(req, res) {
-  //user is not signed in
-  if (true) {
+  //user is not signed up or logged in
+  if (!req.session.user) {
     //redirect to /login
     res.redirect('/login');
   } else {
@@ -94,10 +105,46 @@ function(req, res) {
   }
 });
 
-//if user is not signed in, redirect to login page
-app.get('/login', 
-function(req, res) {
+app.get('/login', function(req, res) {
   res.render('login');
+});
+
+//if user is not signed in, redirect to login page
+app.post('/login', function(req, res) {
+  var un = req.body.username;
+  var pw = req.body.password;
+  if (util.isValidSignUp(un, pw)) {
+    //post to db
+    new User({ username: un, password: pw }).fetch().then(function(found) {
+      if (found) {
+        req.session.regenerate(function(err) {
+          if (err) {
+            console.log(err);
+          } else {
+            req.session.user = un;
+            res.redirect('/');
+          }
+        });
+      } else {
+        res.render('login');
+      }
+    });
+  } 
+
+  // console.log(un, pw, 'un and pw');
+  // if (req.session.user) {
+  //   req.session.regenerate(function(err) {
+  //     if (err) {
+  //       console.log('error: ', err);
+  //       return;
+  //     }
+  //     req.session.user = un;
+  //     res.redirect('/');  
+  //   });
+    
+  // } else {
+  //   res.render('login');  
+  // }
 });
 
 app.get('/links', 
