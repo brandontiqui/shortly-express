@@ -119,39 +119,30 @@ app.post('/login', function(req, res) {
       if (found) {
         req.session.regenerate(function(err) {
           if (err) {
-            console.log(err);
+            res.redirect('/login');
           } else {
             req.session.user = un;
             res.redirect('/');
           }
         });
       } else {
-        res.render('login');
+        req.session.regenerate(function() {
+          res.redirect('/login');
+        });
       }
     });
-  } 
-
-  // console.log(un, pw, 'un and pw');
-  // if (req.session.user) {
-  //   req.session.regenerate(function(err) {
-  //     if (err) {
-  //       console.log('error: ', err);
-  //       return;
-  //     }
-  //     req.session.user = un;
-  //     res.redirect('/');  
-  //   });
-    
-  // } else {
-  //   res.render('login');  
-  // }
+  }
 });
 
 app.get('/links', 
 function(req, res) {
-  Links.reset().fetch().then(function(links) {
-    res.status(200).send(links.models);
-  });
+  if (req.session.user) {
+    Links.reset().fetch().then(function(links) {
+      res.status(200).send(links.models);
+    });  
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.post('/links', 
