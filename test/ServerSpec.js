@@ -268,6 +268,34 @@ describe('', function() {
       });
     });
 
+    it('Signup takes non-empty input', function(done) {
+      var options = {
+        'method': 'POST',
+        'uri': 'http://127.0.0.1:4568/signup',
+        'json': {
+          'username': '',
+          'password': ''
+        }
+      };
+
+      request(options, function(error, res, body) {
+        db.knex('users')
+          .count('*')
+          .where('username', '=', '""')
+          .then(function(ct) {
+            console.log(ct, 'ct!!!!!!!!!!!!!!!!!!');
+            var count = ct[0];
+            expect(count).to.eql(0);
+            done();
+          }).catch(function(err) {
+            throw {
+              type: 'DatabaseError',
+              message: 'Failed to create test setup data'
+            };
+          });
+      });
+    });
+
     it('Signup logs in a new user', function(done) {
       var options = {
         'method': 'POST',
